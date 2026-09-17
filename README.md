@@ -8,13 +8,16 @@
 روی یک سرور تازهٔ Ubuntu 22.04/24.04، به‌عنوان root:
 
 ```bash
-git clone <URL_ریپازیتوری_شما> wordle-fa
+git clone https://github.com/amor7/wordle-fa.git
 cd wordle-fa
 GAME_DOMAIN=wordle.example.com \
 ADMIN_DOMAIN=admin.example.com \
 LETSENCRYPT_EMAIL=you@example.com \
 ./scripts/install.sh
 ```
+
+(اگر با کاربر root وارد نیستید و از `sudo` استفاده می‌کنید، `sudo` را ابتدای همان دستور
+بگذارید: `sudo GAME_DOMAIN=... ./scripts/install.sh`.)
 
 این اسکریپت خودش همه‌چی رو انجام می‌ده: نصب Node.js/Nginx/Certbot، تنظیم فایروال،
 ساخت کاربر سیستمی مجزا، نصب پکیج‌ها، migration دیتابیس، seed کردن بانک کلمات و فرهنگ‌لغت
@@ -34,8 +37,11 @@ LETSENCRYPT_EMAIL=you@example.com \
 
 ```bash
 git pull
-sudo ./scripts/install.sh
+GAME_DOMAIN=wordle.example.com ADMIN_DOMAIN=admin.example.com LETSENCRYPT_EMAIL=you@example.com ./scripts/install.sh
 ```
+
+(همان مقادیر دامین/ایمیل بار اول را بدهید — یا این‌ها را در `~/.bashrc` یا یک فایل جدا export
+کنید تا هر بار تایپ نکنید.)
 
 ## توسعهٔ لوکال
 
@@ -52,3 +58,7 @@ npm run dev
 - [`SETUP_GUIDE.txt`](./SETUP_GUIDE.txt) — راهنمای کامل و مرحله‌به‌مرحلهٔ صفر تا صد،
   شامل توضیح معماری، متغیرهای محیطی، و تاریخچهٔ تغییرات.
 - [`DEPLOY.md`](./DEPLOY.md) — یادداشت‌های کوتاه دیپلوی/نگهداری.
+
+## سازنده
+
+**amor** — [t.me/amor_xo](https://t.me/amor_xo)

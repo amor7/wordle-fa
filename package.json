@@ -2,6 +2,7 @@
   "name": "wordle-fa",
   "version": "0.1.0",
   "private": true,
+  "author": "amor <https://t.me/amor_xo>",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
