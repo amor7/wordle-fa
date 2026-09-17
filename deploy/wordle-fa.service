@@ -1,0 +1,21 @@
+[Unit]
+Description=Wordle FA Next.js app
+After=network.target
+
+[Service]
+Type=simple
+User=wordle
+Group=wordle
+WorkingDirectory=/opt/wordle-fa
+EnvironmentFile=/opt/wordle-fa/.env
+ExecStart=/usr/bin/npm run start
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/wordle-fa/data
+
+[Install]
+WantedBy=multi-user.target

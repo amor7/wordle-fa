@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum AdminRole {
+  ADMIN
+  SUPERADMIN
+}
+
+enum WordSource {
+  MANUAL
+  AUTO
+}
+
+model AdminUser {
+  id           String      @id @default(cuid())
+  username     String      @unique
+  passwordHash String
+  role         AdminRole   @default(ADMIN)
+  createdAt    DateTime    @default(now())
+  words        WordEntry[]
+}
+
+model WordEntry {
+  id          String     @id @default(cuid())
+  word        String
+  length      Int
+  source      WordSource @default(MANUAL)
+  hidden      Boolean    @default(false)
+  activatesAt DateTime   @default(now())
+  expiresAt   DateTime
+  endedEarly  Boolean    @default(false)
+  createdById String?
+  createdBy   AdminUser? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime   @default(now())
+
+  playsStarted Int @default(0)
+  playsWon     Int @default(0)
+  playsLost    Int @default(0)
+
+  @@index([activatesAt, expiresAt])
+}
+
+model PoolWord {
+  id        String   @id @default(cuid())
+  word      String   @unique
+  length    Int
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([length, used])
+}
+
+/// Broad "is this a real word" dictionary used to validate guesses.
+/// Separate from PoolWord (the curated bank an admin browses/picks answers from)
+/// so the admin's pool view isn't drowned out by tens of thousands of entries.
+model GuessDictionary {
+  id     String @id @default(cuid())
+  word   String @unique
+  length Int
+
+  @@index([length])
+}
+
+model Settings {
+  id              Int      @id @default(1)
+  autoModeEnabled Boolean  @default(false)
+  autoModeLength  Int?
+  updatedAt       DateTime @updatedAt
+}
