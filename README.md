@@ -53,12 +53,6 @@ npm run dev
 
 سایت روی [http://localhost:3000](http://localhost:3000) بالا می‌آید.
 
-## مستندات بیشتر
-
-- [`SETUP_GUIDE.txt`](./SETUP_GUIDE.txt) — راهنمای کامل و مرحله‌به‌مرحلهٔ صفر تا صد،
-  شامل توضیح معماری، متغیرهای محیطی، و تاریخچهٔ تغییرات.
-- [`DEPLOY.md`](./DEPLOY.md) — یادداشت‌های کوتاه دیپلوی/نگهداری.
-
 ## سازنده
 
 **amor** — [t.me/amor_xo](https://t.me/amor_xo)

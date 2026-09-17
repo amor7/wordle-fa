@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminToken, ADMIN_COOKIE } from "@/lib/auth";
 
-const ADMIN_HOST = process.env.ADMIN_HOST; // e.g. neda.online-gamers.shop
+const ADMIN_HOST = process.env.ADMIN_HOST; // e.g. admin.example.com
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

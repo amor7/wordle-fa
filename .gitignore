@@ -37,6 +37,11 @@ deploy/ssh/
 *_key
 *_key.pub
 
+# personal deployment records (server IP, domains, secrets) — never public
+SETUP_GUIDE.txt
+DEPLOY.md
+deploy/nginx-wordle-fa.conf
+
 # vercel
 .vercel
 

@@ -254,7 +254,8 @@ export default function Home() {
           .join("")
       )
       .join("\n");
-    return `وردل فارسی ${solved ? rows.length : "X"}/${MAX_GUESSES}\n${grid}\nwordle.online-gamers.shop`;
+    const site = typeof window !== "undefined" ? window.location.host : "";
+    return `وردل فارسی ${solved ? rows.length : "X"}/${MAX_GUESSES}\n${grid}${site ? `\n${site}` : ""}`;
   }, [rows, solved]);
 
   const copyResult = useCallback(async () => {
