@@ -107,7 +107,7 @@ log "کپی کردن کد به $APP_DIR..."
 rsync -a --delete \
   --exclude 'node_modules' --exclude '.next' --exclude '.git' \
   --exclude '.env' --exclude 'dev.db' --exclude 'dev.db-journal' \
-  --exclude 'data' \
+  --exclude '/data' \
   "$REPO_ROOT"/ "$APP_DIR"/
 chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 
