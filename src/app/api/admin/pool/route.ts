@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     const search = searchParams.get("search")?.trim() || "";
     const length = searchParams.get("length");
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
-    const pageSize = 50;
+    const pageSize = Math.min(200, Math.max(10, Number(searchParams.get("pageSize")) || 50));
 
     const where = {
       ...(search ? { word: { contains: search } } : {}),
