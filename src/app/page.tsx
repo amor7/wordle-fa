@@ -66,6 +66,11 @@ export default function Home() {
   const [stats, setStats] = useState<Stats>(() => readStats());
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoModalTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const submittingRef = useRef(false);
+
+  useEffect(() => {
+    submittingRef.current = submitting;
+  }, [submitting]);
 
   useEffect(() => {
     setHardMode(readHardMode());
@@ -85,6 +90,9 @@ export default function Home() {
   }, []);
 
   const loadState = useCallback(async () => {
+    // Skip the background refresh while a guess is being submitted, so it
+    // can't race with (and overwrite) the just-submitted row.
+    if (submittingRef.current) return;
     const res = await fetch("/api/state", { cache: "no-store" });
     const data: StateResponse = await res.json();
     if (!data.active) {
@@ -93,15 +101,23 @@ export default function Home() {
       return;
     }
     setActive(true);
-    setWordId(data.wordId);
     setLength(data.length);
     setExpiresAt(data.expiresAt);
     setRows(data.guesses.map((g) => ({ letters: Array.from(g.guess), statuses: g.feedback })));
     setSolved(data.solved);
     setFailed(data.failed);
     setAnswer(data.answer ?? null);
-    setCurrentGuess([]);
     setLoading(false);
+
+    // Only reset in-progress typing when the active word actually changed —
+    // this function also runs on a 30s background poll, and it used to wipe
+    // out whatever the player was mid-typing every single time it fired.
+    setWordId((prevWordId) => {
+      if (prevWordId !== data.wordId) {
+        setCurrentGuess([]);
+      }
+      return data.wordId;
+    });
 
     if ((data.solved || data.failed) && data.wordId) {
       const updated = recordResult(data.wordId, data.solved, data.guesses.length);
