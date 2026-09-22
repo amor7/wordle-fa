@@ -5,7 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 type PoolItem = { id: string; word: string; length: number; used: boolean };
 type ByLength = { length: number; used: boolean; _count: number };
 
-const PAGE_SIZE_OPTIONS = [20, 50, 100, 200];
+const SHOW_ALL = 5000;
+const PAGE_SIZE_OPTIONS = [20, 50, 100, 200, SHOW_ALL];
 
 export default function PoolPage() {
   const [items, setItems] = useState<PoolItem[]>([]);
@@ -14,7 +15,7 @@ export default function PoolPage() {
   const [search, setSearch] = useState("");
   const [lengthFilter, setLengthFilter] = useState<number | null>(null);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(50);
   const [bulkText, setBulkText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -172,16 +173,16 @@ export default function PoolPage() {
             >
               {PAGE_SIZE_OPTIONS.map((n) => (
                 <option key={n} value={n}>
-                  {n} تا
+                  {n === SHOW_ALL ? "همه" : `${n} تا`}
                 </option>
               ))}
             </select>
           </label>
         </div>
 
-        <div className="overflow-x-auto border rounded-lg" style={{ borderColor: "var(--border)" }}>
+        <div className="overflow-x-auto overflow-y-auto max-h-[600px] border rounded-lg" style={{ borderColor: "var(--border)" }}>
           <table className="w-full text-sm border-collapse">
-            <thead style={{ background: "var(--background)" }}>
+            <thead className="sticky top-0" style={{ background: "var(--background)" }}>
               <tr className="text-right opacity-60">
                 <th className="p-2">کلمه</th>
                 <th className="p-2">طول</th>
@@ -225,8 +226,22 @@ export default function PoolPage() {
             >
               قبلی
             </button>
-            <span className="opacity-70">
-              صفحهٔ {page} از {totalPages}
+            <span className="opacity-70 flex items-center gap-1">
+              صفحهٔ
+              <input
+                type="number"
+                min={1}
+                max={totalPages}
+                value={page}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  if (n >= 1 && n <= totalPages) setPage(n);
+                }}
+                disabled={totalPages <= 1}
+                className="border rounded px-1.5 py-0.5 w-14 text-center bg-transparent"
+                style={{ borderColor: "var(--border)" }}
+              />
+              از {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
