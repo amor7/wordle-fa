@@ -1,4 +1,4 @@
-const CACHE = "wf-shell-v1";
+const CACHE = "wf-shell-v2";
 const SHELL_URLS = ["/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -13,25 +13,18 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Only ever serve these exact, truly-static shell files from cache — pages,
+// JS/CSS, and everything else always goes to the network. A cache-first
+// strategy for the app's actual pages meant updates never showed up until
+// the browser's cache storage was cleared by hand.
 self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-
-  // Never cache API calls — game state must always be fresh.
-  if (url.pathname.startsWith("/api/")) return;
   if (event.request.method !== "GET") return;
 
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+  if (!SHELL_URLS.includes(url.pathname)) return;
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then((res) => {
-          if (res.ok && url.origin === self.location.origin) {
-            const copy = res.clone();
-            caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-          }
-          return res;
-        })
-        .catch(() => cached);
-    })
+    caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
 });
