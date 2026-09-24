@@ -3,7 +3,6 @@ import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { STARTER_WORDS } from "./wordPool.seed";
 
 const prisma = new PrismaClient();
 
@@ -69,9 +68,6 @@ async function main() {
     update: {},
     create: { id: 1, autoModeEnabled: false, autoModeLength: 5 },
   });
-
-  const starter = await seedPoolWords(STARTER_WORDS);
-  console.log(`Word pool (starter list): ${starter.added} added (${starter.total} unique).`);
 
   const answersPath = path.join(__dirname, "data", "answers-5.json");
   if (fs.existsSync(answersPath)) {

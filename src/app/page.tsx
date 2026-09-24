@@ -27,6 +27,28 @@ type StateResponse =
       answer?: string;
     };
 
+const DRAFT_KEY = "wf_draft";
+
+function readDraft(wordId: string, length: number): string[] {
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    if (!raw) return [];
+    const d = JSON.parse(raw) as { wordId: string; letters: string[] };
+    if (d.wordId !== wordId || !Array.isArray(d.letters)) return [];
+    return d.letters.filter((c) => ALLOWED_CHARS.has(c)).slice(0, length);
+  } catch {
+    return [];
+  }
+}
+
+function writeDraft(wordId: string, letters: string[]) {
+  try {
+    window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ wordId, letters }));
+  } catch {
+    // ignore
+  }
+}
+
 function statusPriority(s: LetterStatus): number {
   if (s === "correct") return 3;
   if (s === "present") return 2;
@@ -67,10 +89,17 @@ export default function Home() {
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoModalTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const submittingRef = useRef(false);
+  const wordIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     submittingRef.current = submitting;
   }, [submitting]);
+
+  // Persist the in-progress guess so a page reload / discarded mobile tab
+  // doesn't lose what was typed.
+  useEffect(() => {
+    if (wordId) writeDraft(wordId, currentGuess);
+  }, [wordId, currentGuess]);
 
   useEffect(() => {
     setHardMode(readHardMode());
@@ -109,15 +138,20 @@ export default function Home() {
     setAnswer(data.answer ?? null);
     setLoading(false);
 
-    // Only reset in-progress typing when the active word actually changed —
-    // this function also runs on a 30s background poll, and it used to wipe
-    // out whatever the player was mid-typing every single time it fired.
-    setWordId((prevWordId) => {
-      if (prevWordId !== data.wordId) {
+    // Only touch in-progress typing when the active word actually changed.
+    // (This also runs on a 30s background poll — it must never wipe what the
+    // player is mid-typing.) On the very first load we restore the saved
+    // draft so typing survives the phone browser reloading/discarding the tab.
+    if (wordIdRef.current !== data.wordId) {
+      const isFirstLoad = wordIdRef.current === null;
+      wordIdRef.current = data.wordId;
+      setWordId(data.wordId);
+      if (isFirstLoad && !data.solved && !data.failed) {
+        setCurrentGuess(readDraft(data.wordId, data.length));
+      } else {
         setCurrentGuess([]);
       }
-      return data.wordId;
-    });
+    }
 
     if ((data.solved || data.failed) && data.wordId) {
       const updated = recordResult(data.wordId, data.solved, data.guesses.length);
